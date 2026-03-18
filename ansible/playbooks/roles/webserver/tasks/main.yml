@@ -1,0 +1,24 @@
+- name: Install nginx
+  yum:
+    name: nginx
+    state: present
+
+- name: Start nginx
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+
+- name: Create index page
+  copy:
+    content: |
+      <h1>TFG Cloud Project</h1>
+      <p>Servidor activo</p>
+      <p>Hostname: {{ ansible_hostname }}</p>
+      <p>IP: {{ ansible_default_ipv4.address }}</p>
+    dest: /usr/share/nginx/html/index.html
+
+- name: Create health endpoint
+  copy:
+    content: OK
+    dest: /usr/share/nginx/html/health
