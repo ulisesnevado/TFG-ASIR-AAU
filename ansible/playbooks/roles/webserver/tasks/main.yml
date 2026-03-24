@@ -34,6 +34,15 @@
   pip:
     name: flask
 
+- name: Install MySQL client
+  yum:
+    name: mysql
+    state: present
+
+- name: Install PyMySQL
+  pip:
+    name: pymysql
+
 - name: Copy app files
   copy:
     src: ../../../../app/
@@ -44,4 +53,8 @@
 
 - name: Run Flask app
   shell: nohup python3 /home/ec2-user/app/app.py &
-
+  environment:
+    DB_HOST: "localhost"
+    DB_USER: "admin"
+    DB_PASS: "password"
+    DB_NAME: "tfg_db"
