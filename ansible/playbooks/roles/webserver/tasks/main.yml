@@ -36,7 +36,7 @@
 
 - name: Install MySQL client
   yum:
-    name: mariadb
+    name: mariadb105
     state: present
 
 - name: Install PyMySQL
