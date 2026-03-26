@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>TFG - Web de Focas 🦭</title>
+</head>
+<body class="bg-slate-50 min-h-screen flex items-center justify-center font-sans">
+    <div class="bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md border-b-8 border-blue-500">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
+

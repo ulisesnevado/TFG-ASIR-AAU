@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="text-center">
+        <h1 class="text-5xl mb-4">🦭</h1>
+        <h2 class="text-3xl font-extrabold text-slate-800">Web de Focas</h2>
+        {% if user %}
+            <p class="text-green-600 mt-4 text-xl font-semibold">¡Bienvenido, {{ user }}!</p>
+            <a href="/" class="mt-8 block text-slate-400 hover:text-slate-600 underline">Cerrar sesión</a>
+        {% else %}
+            <p class="text-slate-500 mt-2 mb-8">Infraestructura autoescalable para el TFG</p>
+            <div class="flex flex-col gap-4">
+                <a href="/login" class="bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition">Entrar</a>
+                <a href="/register" class="bg-slate-100 text-slate-700 py-3 rounded-xl font-bold hover:bg-slate-200 transition">Crear cuenta</a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+

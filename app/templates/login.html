@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2 class="text-2xl font-bold text-slate-800 mb-6 text-center">Acceder</h2>
+    {% if error %}<p class="text-red-500 text-center mb-4">{{ error }}</p>{% endif %}
+    <form method="post" class="space-y-4">
+        <input name="username" placeholder="Usuario" class="w-full border-2 border-slate-100 p-3 rounded-xl focus:border-blue-400 outline-none" required>
+        <input name="password" type="password" placeholder="Password" class="w-full border-2 border-slate-100 p-3 rounded-xl focus:border-blue-400 outline-none" required>
+        <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold">Iniciar Sesión</button>
+    </form>
+    <p class="mt-6 text-center text-slate-500">¿No tienes cuenta? <a href="/register" class="text-blue-500 font-bold">Regístrate</a></p>
+{% endblock %}
+

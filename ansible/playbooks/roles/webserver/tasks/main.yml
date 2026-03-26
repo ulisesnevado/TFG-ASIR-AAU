@@ -52,6 +52,7 @@
     owner: ec2-user
     group: ec2-user
     mode: '0755'
+    directory_mode: '0755'
 
 - name: Wait for RDS to be reachable
   wait_for:
@@ -75,17 +76,18 @@
     content: |
       [Unit]
       Description=Flask Application for TFG
-      After=network.target
+      After=network.target nginx.service
 
       [Service]
       User=ec2-user
       WorkingDirectory=/home/ec2-user/app
       Environment="DB_HOST={{ lookup('env', 'DB_HOST') | default('localhost', true) }}"
-      Environment="DB_USER=admin"
-      Environment="DB_PASS=password"
-      Environment="DB_NAME=tfg_db"
+      Environment="DB_USER={{ lookup('env', 'DB_USER') | default('admin', true) }}"
+      Environment="DB_PASS={{ lookup('env', 'DB_PASS') | default('password', true) }}"
+      Environment="DB_NAME={{ lookup('env', 'DB_NAME') | default('tfg_db', true) }}" 
       ExecStart=/usr/bin/python3 /home/ec2-user/app/app.py
       Restart=always
+      RestartSec=5
 
       [Install]
       WantedBy=multi-user.target
