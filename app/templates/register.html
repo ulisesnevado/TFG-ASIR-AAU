@@ -1,44 +1,43 @@
 {% extends "base.html" %}
-
 {% block content %}
-    <div class="text-center">
-        <h2 class="text-3xl font-extrabold text-slate-800 mb-2">Nueva Cuenta 🦭</h2>
-        <p class="text-slate-500 mb-8 text-sm">Únete a la plataforma de gestión de focas</p>
-    </div>
-
-    <form method="post" class="space-y-5">
-        <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-1 ml-1 text-left">Nombre de usuario</label>
-            <input name="username" 
-                   type="text" 
-                   placeholder="Ej: foca_master" 
-                   class="w-full border-2 border-slate-100 p-3 rounded-xl focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none transition-all duration-200" 
-                   required>
+<div class="flex items-center justify-center min-h-[70vh] px-4">
+    <div class="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-md border-b-8 border-green-500">
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-extrabold text-slate-800 mb-2">Nueva Cuenta 🦭</h2>
+            <p class="text-slate-500 text-sm italic">Únete a la plataforma de gestión de focas</p>
         </div>
 
-        <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-1 ml-1 text-left">Contraseña</label>
-            <input name="password" 
-                   type="password" 
-                   placeholder="••••••••" 
-                   class="w-full border-2 border-slate-100 p-3 rounded-xl focus:border-blue-400 focus:ring-2 focus:ring-blue-100 outline-none transition-all duration-200" 
-                   required>
+        <form method="post" class="space-y-5">
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Nombre de usuario</label>
+                <input name="username" 
+                       type="text" 
+                       placeholder="Ej: foca_master" 
+                       class="w-full border-2 border-slate-100 p-4 rounded-2xl focus:border-blue-400 focus:ring-4 focus:ring-blue-50 outline-none transition-all duration-200" 
+                       required>
+            </div>
+
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2 ml-1">Contraseña</label>
+                <input name="password" 
+                       type="password" 
+                       placeholder="••••••••" 
+                       class="w-full border-2 border-slate-100 p-4 rounded-2xl focus:border-blue-400 focus:ring-4 focus:ring-blue-50 outline-none transition-all duration-200" 
+                       required>
+            </div>
+
+            <button type="submit" 
+                    class="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-green-100 hover:shadow-green-200 transform hover:-translate-y-1 transition-all duration-200 mt-4">
+                Registrar Foca
+            </button>
+        </form>
+
+        <div class="mt-8 text-center border-t border-slate-50 pt-6">
+            <p class="text-slate-500 text-sm">
+                ¿Ya eres miembro? 
+                <a href="{{ url_for('login') }}" class="text-blue-500 font-bold hover:underline">Inicia sesión</a>
+            </p>
         </div>
-
-        <button type="submit" 
-                class="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-green-100 hover:shadow-green-200 transform hover:-translate-y-0.5 transition-all duration-200 mt-4">
-            Registrar Foca
-        </button>
-    </form>
-
-    <div class="mt-8 text-center border-t border-slate-50 pt-6">
-        <p class="text-slate-500 text-sm">
-            ¿Ya eres miembro? 
-            <a href="/login" class="text-blue-500 font-bold hover:text-blue-600 transition underline-offset-4 hover:underline">Inicia sesión</a>
-        </p>
-        <a href="/" class="block mt-4 text-xs text-slate-400 hover:text-slate-600 transition uppercase tracking-widest font-bold">
-            ← Volver al inicio
-        </a>
     </div>
+</div>
 {% endblock %}
-
