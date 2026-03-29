@@ -3,10 +3,10 @@ import pymysql
 import os
 
 app = Flask(__name__)
-# CLAVE SECRETA: Necesaria para manejar sesiones y mensajes flash en Flask
+""" CLAVE SECRETA: Necesaria para manejar sesiones y mensajes flash en Flask"""
 app.secret_key = os.getenv("SECRET_KEY", "tfg_focas_secret_key_2026")
 
-# Configuración RDS desde variables de entorno
+""" Configuración RDS desde variables de entorno"""
 DB_HOST = os.getenv("DB_HOST", "localhost")
 DB_USER = os.getenv("DB_USER", "admin")
 DB_PASS = os.getenv("DB_PASS", "password")
@@ -46,7 +46,7 @@ def health():
 
 @app.route("/")
 def home():
-    # Recogemos el usuario de los parámetros si acaba de hacer login
+    """ Recogemos el usuario de los parámetros si acaba de hacer login"""
     user = request.args.get('user')
     return render_template("index.html", user=user)
 
