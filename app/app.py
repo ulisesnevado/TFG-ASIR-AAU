@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 import pymysql
 import os
 
@@ -39,6 +39,11 @@ def init_db():
     except Exception as e:
         print(f" Error crítico inicializando DB: {e}")
 
+@app.route("/health")
+def health():
+    """Ruta simple para que el balanceador de carga verifique que la instancia está viva."""
+    return "OK", 200
+
 @app.route("/")
 def home():
     # Recogemos el usuario de los parámetros si acaba de hacer login
@@ -77,15 +82,18 @@ def login():
             c.execute("SELECT * FROM users WHERE username=%s AND password=%s", (user, pwd))
             result = c.fetchone()
         conn.close()
+
         if result:
-            # Redirigimos a home pasando el nombre de usuario
-            return redirect(url_for('home', user=user))
+            session['user'] = user
+            return redirect(url_for('home'))
+
         error = "Credenciales incorrectas"
     return render_template("login.html", error=error)
 
 @app.route("/logout")
 def logout():
     """Ruta para limpiar la sesión y volver al inicio."""
+    session.pop('user', None)
     return redirect(url_for('home'))
 
 if __name__ == "__main__":
