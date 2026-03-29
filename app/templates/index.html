@@ -50,24 +50,38 @@
         </div>
     </section>
 
-    <!-- Galería -->
+        <!-- Galería -->
     <section class="bg-slate-100 py-20 px-6">
         <div class="max-w-6xl mx-auto">
             <h3 class="text-3xl font-bold text-center text-slate-800 mb-12">Nuestros Amigos Marinos</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <!-- Foca de Groenlandia -->
                 <div class="bg-white p-4 rounded-3xl shadow-lg transform hover:scale-105 transition">
-                    <div class="h-48 bg-slate-200 rounded-2xl mb-4 flex items-center justify-center italic text-slate-400">  </div>
-                    <h4 class="font-bold text-slate-800 text-lg">Foca de Groenlandia</h4>
+                    <img src="{{ url_for('static', filename='img/groenlandia.jpg') }}" 
+                         alt="Foca de Groenlandia" 
+                         class="h-48 w-full object-cover rounded-2xl mb-4 shadow-sm">
+                    <h4 class="font-bold text-slate-800 text-lg ml-2">Foca de Groenlandia</h4>
                 </div>
+
+                <!-- Foca Monje -->
                 <div class="bg-white p-4 rounded-3xl shadow-lg transform hover:scale-105 transition">
-                    <div class="h-48 bg-slate-200 rounded-2xl mb-4 flex items-center justify-center italic text-slate-400">  </div>
-                    <h4 class="font-bold text-slate-800 text-lg">Foca Monje</h4>
+                    <img src="{{ url_for('static', filename='img/monje.jpg') }}" 
+                         alt="Foca Monje" 
+                         class="h-48 w-full object-cover rounded-2xl mb-4 shadow-sm">
+                    <h4 class="font-bold text-slate-800 text-lg ml-2">Foca Monje</h4>
                 </div>
+
+                <!-- Elefante Marino -->
                 <div class="bg-white p-4 rounded-3xl shadow-lg transform hover:scale-105 transition">
-                    <div class="h-48 bg-slate-200 rounded-2xl mb-4 flex items-center justify-center italic text-slate-400">  </div>
-                    <h4 class="font-bold text-slate-800 text-lg">Elefante Marino</h4>
+                    <img src="{{ url_for('static', filename='img/elefante.jpg') }}" 
+                         alt="Elefante Marino" 
+                         class="h-48 w-full object-cover rounded-2xl mb-4 shadow-sm">
+                    <h4 class="font-bold text-slate-800 text-lg ml-2">Elefante Marino</h4>
                 </div>
+
             </div>
         </div>
     </section>
+
 {% endblock %}
