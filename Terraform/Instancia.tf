@@ -16,7 +16,8 @@ variable "db_host" {
 
 resource "aws_security_group" "flask_instances_sg" {
   name        = "flask-instances"
-  description = "Allow SSH, HTTP, HTTPS, MySQL, and Flask"
+  description = "Allow SSH, HTTP, HTTPS, MySQL, and Flask"ç
+  vpc_id      = "vpc-07eaffbed50b97e02"
 
   # SSH
   ingress {
@@ -71,7 +72,9 @@ resource "aws_instance" "ubuntu_instance" {
   ami                    = "ami-0ec10929233384c7f"
   instance_type          = "t2.micro"
   key_name               = "vockey"
+  subnet_id              = "subnet-0e3eee204d87cff0d"
   vpc_security_group_ids = [aws_security_group.flask_instances_sg.id]
+  associate_public_ip_address = true
 
   user_data = <<-EOF
 #!/bin/bash
