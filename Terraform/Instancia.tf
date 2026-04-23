@@ -2,9 +2,17 @@ provider "aws" {
   region = "us-east-1"
 }
 
-variable "db_username" {admin}
-variable "db_password" {admimn}
-variable "db_host" {10.33.4.10} # IP o DNS de la otra instancia donde está MySQL
+variable "db_username" {
+  default = "admin"
+}
+
+variable "db_password" {
+  default = "admin"
+}
+
+variable "db_host" {
+  default = "10.33.4.10"
+}
 
 resource "aws_security_group" "flask_instances_sg" {
   name        = "flask-instances"
