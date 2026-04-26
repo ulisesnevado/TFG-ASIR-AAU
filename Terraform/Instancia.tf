@@ -124,8 +124,7 @@ echo "DB_NAME=foca_teste" >> /etc/environment
 
 source /etc/environment
 
-ansible-pull -U https://github.com ansible/playbooks/webserver.yml
-
+ansible-pull -U https://github.com/ulisesnevado/TFG-ASIR-AAU.git webserver.yml
 EOF
 
   tags = {
