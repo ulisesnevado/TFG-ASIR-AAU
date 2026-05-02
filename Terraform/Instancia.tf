@@ -62,6 +62,51 @@ resource "aws_security_group" "flask_instances_sg" {
   }
 }
 
+resource "aws_lb" "test" {
+  name               = "test-lb-tf"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.flask_instances_sg.id]
+  subnets            = ["subnet-0e3eee204d87cff0d",
+    "subnet-0c3a053067ca6dd98"]
+
+  enable_deletion_protection = true
+
+  tags = {
+    Environment = "production"
+  }
+}
+
+resource "aws_lb" "lb_test" {
+  name               = "test-lb-tf"
+  internal           = false
+  load_balancer_type = "network"
+  subnets            = ["subnet-0e3eee204d87cff0d",
+    "subnet-0c3a053067ca6dd98"]
+
+  enable_deletion_protection = true
+
+  tags = {
+    Environment = "production"
+  }
+}
+
+resource "aws_lb" "example" {
+  name               = "example"
+  load_balancer_type = "network"
+  internal           = true
+
+  subnet_mapping {
+    subnet_id            = "subnet-0e3eee204d87cff0d"
+    private_ipv4_address = "10.33.4.20"
+  }
+
+  subnet_mapping {
+    subnet_id            = "subnet-0c3a053067ca6dd98"
+    private_ipv4_address = "10.33.2.20"
+  }
+}
+
 resource "aws_launch_configuration" "terralaunch" {
   name_prefix                 = "terralaunch-"
   image_id                    = "ami-0ec10929233384c7f"
