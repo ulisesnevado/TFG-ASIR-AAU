@@ -16,10 +16,9 @@ variable "db_host" {
 
 resource "aws_security_group" "flask_instances_sg" {
   name        = "flask-instances"
-  description = "Allow SSH, HTTP, HTTPS, MySQL, and Flask"ç
+  description = "Allow SSH, HTTP, HTTPS, MySQL, and Flask"
   vpc_id      = "vpc-07eaffbed50b97e02"
 
-  # SSH
   ingress {
     from_port   = 22
     to_port     = 22
@@ -27,7 +26,6 @@ resource "aws_security_group" "flask_instances_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # HTTP
   ingress {
     from_port   = 80
     to_port     = 80
@@ -35,7 +33,6 @@ resource "aws_security_group" "flask_instances_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # HTTPS
   ingress {
     from_port   = 443
     to_port     = 443
@@ -43,7 +40,6 @@ resource "aws_security_group" "flask_instances_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # MySQL
   ingress {
     from_port   = 3306
     to_port     = 3306
@@ -51,15 +47,13 @@ resource "aws_security_group" "flask_instances_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Flask (desde ALB)
   ingress {
-    from_port       = 5000
-    to_port         = 5000
-    protocol        = "tcp"
+    from_port   = 5000
+    to_port     = 5000
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Salida libre
   egress {
     from_port   = 0
     to_port     = 0
@@ -68,29 +62,13 @@ resource "aws_security_group" "flask_instances_sg" {
   }
 }
 
-resource "aws_autoscaling_group" "terrform_scaling" {
-  min_size             = 1
-  max_size             = 4
-  desired_capacity     = 1
-  launch_configuration = aws_launch_configuration.terramino.name
-  vpc_zone_identifier = [
-    "subnet-0e3eee204d87cff0d",
-    "subnet-0c3a053067ca6dd98"
-  ]
-
-}
-
-resource "aws_launch_template" "terralaunch" {
-  ami                    = "ami-0ec10929233384c7f"
-  instance_type          = "t2.micro"
-  key_name               = "vockey"
-  subnet_id              = "subnet-0e3eee204d87cff0d"
-  vpc_security_group_ids = [aws_security_group.flask_instances_sg.id]
+resource "aws_launch_configuration" "terralaunch" {
+  name_prefix                 = "terralaunch-"
+  image_id                    = "ami-0ec10929233384c7f"
+  instance_type               = "t2.micro"
+  key_name                    = "vockey"
+  security_groups             = [aws_security_group.flask_instances_sg.id]
   associate_public_ip_address = true
-  lifecycle {
-      create_before_destroy = true
-  }
-
 
   user_data = <<-EOF
 #!/bin/bash
@@ -111,7 +89,6 @@ if [ -f requirements.txt ]; then
   pip3 install -r requirements.txt
 fi
 
-# Comprobación conexión a la DB remota
 mysql -h ${var.db_host} -u ${var.db_username} -p${var.db_password} -e "SHOW DATABASES;" || true
 
 cat <<EOT > /etc/systemd/system/flaskapp.service
@@ -142,8 +119,22 @@ source /etc/environment
 
 ansible-pull -U https://github.com/ulisesnevado/TFG-ASIR-AAU.git webserver.yml
 EOF
+}
 
-  tags = {
-    Name = "ubuntu-terra"
+resource "aws_autoscaling_group" "terrform_scaling" {
+  min_size             = 1
+  max_size             = 4
+  desired_capacity     = 1
+  launch_configuration = aws_launch_configuration.terralaunch.name
+
+  vpc_zone_identifier = [
+    "subnet-0e3eee204d87cff0d",
+    "subnet-0c3a053067ca6dd98"
+  ]
+
+  tag {
+    key                 = "Name"
+    value               = "terraform-instance"
+    propagate_at_launch = true
   }
 }
