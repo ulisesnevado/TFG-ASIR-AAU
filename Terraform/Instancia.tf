@@ -68,13 +68,29 @@ resource "aws_security_group" "flask_instances_sg" {
   }
 }
 
-resource "aws_instance" "ubuntu_instance" {
+resource "aws_autoscaling_group" "terrform_scaling" {
+  min_size             = 1
+  max_size             = 4
+  desired_capacity     = 1
+  launch_configuration = aws_launch_configuration.terramino.name
+  vpc_zone_identifier = [
+    "subnet-0e3eee204d87cff0d",
+    "subnet-0c3a053067ca6dd98"
+  ]
+
+}
+
+resource "aws_launch_template" "terralaunch" {
   ami                    = "ami-0ec10929233384c7f"
   instance_type          = "t2.micro"
   key_name               = "vockey"
   subnet_id              = "subnet-0e3eee204d87cff0d"
   vpc_security_group_ids = [aws_security_group.flask_instances_sg.id]
   associate_public_ip_address = true
+  lifecycle {
+      create_before_destroy = true
+  }
+
 
   user_data = <<-EOF
 #!/bin/bash
@@ -128,6 +144,6 @@ ansible-pull -U https://github.com/ulisesnevado/TFG-ASIR-AAU.git webserver.yml
 EOF
 
   tags = {
-    Name = "ubuntu-test"
+    Name = "ubuntu-terra"
   }
 }
