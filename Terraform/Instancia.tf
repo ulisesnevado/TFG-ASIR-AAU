@@ -70,21 +70,21 @@ resource "aws_lb" "test" {
   subnets            = ["subnet-0e3eee204d87cff0d",
     "subnet-0c3a053067ca6dd98"]
 
-  enable_deletion_protection = true
+  enable_deletion_protection = false
 
   tags = {
     Environment = "production"
   }
 }
 
-resource "aws_lb" "lb_test" {
-  name               = "test-lb-tf"
+resource "aws_lb" "prueba8" {
+  name               = "prueba-lb-tf"
   internal           = false
   load_balancer_type = "network"
   subnets            = ["subnet-0e3eee204d87cff0d",
     "subnet-0c3a053067ca6dd98"]
 
-  enable_deletion_protection = true
+  enable_deletion_protection = false
 
   tags = {
     Environment = "production"
@@ -98,12 +98,12 @@ resource "aws_lb" "example" {
 
   subnet_mapping {
     subnet_id            = "subnet-0e3eee204d87cff0d"
-    private_ipv4_address = "10.33.4.20"
+    private_ipv4_address = "10.33.4.30"
   }
 
   subnet_mapping {
     subnet_id            = "subnet-0c3a053067ca6dd98"
-    private_ipv4_address = "10.33.2.20"
+    private_ipv4_address = "10.33.8.30"
   }
 }
 
