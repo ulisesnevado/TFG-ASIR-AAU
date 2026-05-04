@@ -101,13 +101,13 @@ resource "aws_lb_listener" "https" {
 }
 
 resource "aws_autoscaling_group" "flask" {
-  name                = "${var.project_name}-asg"
-  min_size            = 1
-  max_size            = 4
-  desired_capacity    = 2
-  vpc_zone_identifier = aws_subnet.public[*].id
-  target_group_arns   = [aws_lb_target_group.flask.arn]
-  health_check_type   = "ELB"
+  name                      = "${var.project_name}-asg"
+  min_size                  = 1
+  max_size                  = 4
+  desired_capacity          = 2
+  vpc_zone_identifier       = aws_subnet.public[*].id
+  target_group_arns         = [aws_lb_target_group.flask.arn]
+  health_check_type         = "ELB"
   health_check_grace_period = 300
 
   launch_template {
