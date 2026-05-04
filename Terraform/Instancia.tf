@@ -107,75 +107,59 @@ resource "aws_lb" "example" {
   }
 }
 
-resource "aws_launch_configuration" "terralaunch" {
-  name_prefix                 = "terralaunch-"
-  image_id                    = "ami-0ec10929233384c7f"
-  instance_type               = "t2.micro"
-  key_name                    = "vockey"
-  security_groups             = [aws_security_group.flask_instances_sg.id]
-  associate_public_ip_address = true
+data "aws_ami" "ubuntu" {
+  most_recent = true
+  owners      = ["099720109477"] # Canonical
 
-  user_data = <<-EOF
-#!/bin/bash
-set -x
-
-apt update -y
-apt upgrade -y
-
-apt install -y python3 python3-pip git mysql-client ansible
-
-pip3 install flask
-
-cd /home/ubuntu
-git clone https://github.com/ulisesnevado/TFG-ASIR-AAU
-cd TFG-ASIR-AAU
-
-if [ -f requirements.txt ]; then
-  pip3 install -r requirements.txt
-fi
-
-mysql -h ${var.db_host} -u ${var.db_username} -p${var.db_password} -e "SHOW DATABASES;" || true
-
-cat <<EOT > /etc/systemd/system/flaskapp.service
-[Unit]
-Description=Flask App
-After=network.target
-
-[Service]
-User=ubuntu
-WorkingDirectory=/home/ubuntu/TFG-ASIR-AAU
-ExecStart=/usr/bin/python3 /home/ubuntu/TFG-ASIR-AAU/app.py
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-EOT
-
-systemctl daemon-reload
-systemctl enable flaskapp
-systemctl start flaskapp
-
-echo "DB_HOST=${var.db_host}" >> /etc/environment
-echo "DB_USER=${var.db_username}" >> /etc/environment
-echo "DB_PASS=${var.db_password}" >> /etc/environment
-echo "DB_NAME=foca_teste" >> /etc/environment
-
-source /etc/environment
-
-ansible-pull -U https://github.com/ulisesnevado/TFG-ASIR-AAU.git webserver.yml
-EOF
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-jammy-22.04-amd64-server-*"]
+  }
 }
 
-resource "aws_autoscaling_group" "terrform_scaling" {
-  min_size             = 1
-  max_size             = 4
-  desired_capacity     = 1
-  launch_configuration = aws_launch_configuration.terralaunch.name
+resource "aws_launch_template" "terralaunch" {
+  name_prefix   = "terralaunch-"
+  image_id      = data.aws_ami.ubuntu.id
+  instance_type = "t2.micro"
+  key_name      = "vockey"
 
+  network_interfaces {
+    associate_public_ip_address = true
+    security_groups             = [aws_security_group.flask_instances_sg.id]
+  }
+
+  iam_instance_profile {
+    name = "LabInstanceProfile"  # típico en AWS Academy; quítalo si no existe
+  }
+
+  user_data = base64encode(templatefile("${path.module}/user_data.sh", {
+    db_host     = var.db_host
+    db_username = var.db_username
+    db_password = var.db_password
+  }))
+
+  tag_specifications {
+    resource_type = "instance"
+    tags = {
+      Name = "terraform-instance"
+    }
+  }
+}
+
+resource "aws_autoscaling_group" "terraform_scaling" {
+  name                = "terraform-asg"
+  min_size            = 1
+  max_size            = 4
+  desired_capacity    = 1
   vpc_zone_identifier = [
     "subnet-0e3eee204d87cff0d",
     "subnet-0c3a053067ca6dd98"
   ]
+
+  launch_template {
+    id      = aws_launch_template.terralaunch.id
+    version = "$Latest"
+  }
 
   tag {
     key                 = "Name"
