@@ -1,2 +1,1 @@
-[webservers]
-52.54.111.210 ansible_user=ec2-user
+localhost ansible_connection=local

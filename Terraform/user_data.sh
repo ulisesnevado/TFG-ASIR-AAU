@@ -1,33 +1,27 @@
 #!/bin/bash
-set -x
-apt update -y
-apt upgrade -y
-apt install -y python3 python3-pip git mysql-client ansible
-pip3 install flask
+set -eux
 
-cd /home/ubuntu
-git clone https://github.com/ulisesnevado/TFG-ASIR-AAU
-cd TFG-ASIR-AAU
-[ -f requirements.txt ] && pip3 install -r requirements.txt
+export DEBIAN_FRONTEND=noninteractive
 
-cat <<EOT > /etc/systemd/system/flaskapp.service
-[Unit]
-Description=Flask App
-After=network.target
+apt-get update -y
+apt-get install -y python3 python3-pip git ansible
 
-[Service]
-User=ubuntu
-WorkingDirectory=/home/ubuntu/TFG-ASIR-AAU
-ExecStart=/usr/bin/python3 /home/ubuntu/TFG-ASIR-AAU/app.py
-Restart=always
-Environment="DB_HOST=${db_host}"
-Environment="DB_USER=${db_username}"
-Environment="DB_PASS=${db_password}"
-Environment="DB_NAME=foca_teste"
+# Variables que el playbook leerá del entorno
+cat <<EOF >> /etc/environment
+DB_HOST=${db_host}
+DB_USER=${db_user}
+DB_PASS=${db_password}
+DB_NAME=${db_name}
+EOF
 
-[Install]
-WantedBy=multi-user.target
-EOT
+# Cargar el environment para esta misma sesión
+set -o allexport
+source /etc/environment
+set +o allexport
 
-systemctl daemon-reload
-systemctl enable --now flaskapp
+# Ansible-pull desde el repo del TFG
+ansible-pull \
+  -U ${github_repo} \
+  -d /home/ubuntu/TFG-ASIR-AAU \
+  -i ansible/inventory \
+  ansible/playbooks/webserver.yml

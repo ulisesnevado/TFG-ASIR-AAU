@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Claude">
   <diagram name="Arquitectura AWS - F.O.C.A." id="tfg-focas-aws">
-    <mxGraphModel dx="978" dy="631" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="826" math="0" shadow="0">
+    <mxGraphModel dx="1471" dy="814" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="826" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -75,7 +75,7 @@
             <mxPoint x="670" y="170" as="sourcePoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="htzcvrEvJULsHgf1lUqn-2" parent="region" style="dashed=0;outlineConnect=0;html=1;align=center;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;shape=mxgraph.weblogos.gmail" value="&lt;div&gt;Alertas Gmail&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+        <mxCell id="htzcvrEvJULsHgf1lUqn-2" parent="region" style="dashed=0;outlineConnect=0;html=1;align=center;labelPosition=center;verticalLabelPosition=bottom;verticalAlign=top;shape=mxgraph.weblogos.gmail" value="&lt;div&gt;Alertas SNS Gmail&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
           <mxGeometry height="46.800000000000004" width="64.8" x="956.6" as="geometry" />
         </mxCell>
         <mxCell id="edge-cw-sns" edge="1" parent="region" source="cloudwatch" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#5A6C7D;strokeWidth=1.5;endArrow=classic;endFill=1;dashed=1;fontSize=10;fontColor=#5F5E5A;exitX=0.75;exitY=0;exitDx=0;exitDy=0;exitPerimeter=0;" target="htzcvrEvJULsHgf1lUqn-2" value="alarma">

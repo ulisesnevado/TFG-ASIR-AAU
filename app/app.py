@@ -3,6 +3,12 @@ import pymysql
 import os
 
 app = Flask(__name__)
+
+from werkzeug.middleware.proxy_fix import ProxyFix
+
+""" Flask confie en las cabeceras del ALB (HTTPS)"""
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+
 """ CLAVE SECRETA: Necesaria para manejar sesiones y mensajes flash en Flask"""
 app.secret_key = os.getenv("SECRET_KEY", "tfg_focas_secret_key_2026")
 
