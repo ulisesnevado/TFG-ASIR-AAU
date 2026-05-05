@@ -6,5 +6,6 @@ Terraform/terraform.tfvars
 Terraform/*.pem
 *.tfstate*
 tfg-key1.pem
+*.pem
 awscliv2
 awscliv2/*

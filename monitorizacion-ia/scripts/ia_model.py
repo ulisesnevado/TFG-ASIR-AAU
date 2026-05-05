@@ -1,16 +1,21 @@
 import pandas as pd
 import joblib
 
-df = pd.read_csv('/home/ec2-user/cpu_data.csv')
+CSV_PATH = '/home/ubuntu/cpu_data.csv'
+MODEL_PATH = '/home/ubuntu/isolation_forest_model.pkl'
+SCALER_PATH = '/home/ubuntu/scaler.pkl'
+
+df = pd.read_csv(CSV_PATH)
 
 X = df[['CPU', 'NetworkIn', 'NetworkOut']]
 
-scaler = joblib.load('/home/ec2-user/scaler.pkl')
-model = joblib.load('/home/ec2-user/isolation_forest_model.pkl')
+scaler = joblib.load(SCALER_PATH)
+model = joblib.load(MODEL_PATH)
 
 X_scaled = scaler.transform(X)
 
 df['anomaly'] = model.predict(X_scaled)
+
 
 def calcular_severidad(row):
     cpu = row['CPU']
@@ -24,7 +29,9 @@ def calcular_severidad(row):
     else:
         return 0
 
+
 df['severity'] = df.apply(calcular_severidad, axis=1)
+
 
 def calcular_anomalia_final(row):
     if row['anomaly'] == -1 or row['severity'] > 0:
@@ -32,8 +39,9 @@ def calcular_anomalia_final(row):
     else:
         return 1
 
+
 df['final_anomaly'] = df.apply(calcular_anomalia_final, axis=1)
 
-df.to_csv('/home/ec2-user/cpu_data.csv', index=False)
+df.to_csv(CSV_PATH, index=False)
 
 print(df)

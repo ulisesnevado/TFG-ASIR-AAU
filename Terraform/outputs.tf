@@ -4,7 +4,7 @@ output "alb_dns_name" {
 }
 
 output "alb_zone_id" {
-  description = "Zone ID del ALB (por si IONOS soportara ALIAS)"
+  description = "Zone ID del ALB"
   value       = aws_lb.main.zone_id
 }
 

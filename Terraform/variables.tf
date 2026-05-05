@@ -81,3 +81,9 @@ variable "iam_instance_profile" {
   type        = string
   default     = "LabInstanceProfile"
 }
+
+variable "alert_emails" {
+  description = "Emails que recibirán alertas SNS por anomalías detectadas"
+  type        = list(string)
+  default     = []
+}

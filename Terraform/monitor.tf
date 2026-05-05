@@ -8,9 +8,14 @@ resource "aws_instance" "monitor" {
 
   iam_instance_profile = var.iam_instance_profile
 
+  user_data = base64encode(templatefile("${path.module}/monitor_user_data.sh", {
+    github_repo = var.github_repo
+  }))
+
+  # Forzar recreación de la EC2 si cambia el user_data
+  user_data_replace_on_change = true
+
   tags = {
     Name = "${var.project_name}-monitor"
   }
-
-  # Cuando integremos el código de tu compañero, le pasaremos un user_data aquí.
 }
