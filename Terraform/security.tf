@@ -33,7 +33,7 @@ resource "aws_security_group" "alb" {
 
 resource "aws_security_group" "flask" {
   name        = "${var.project_name}-flask-sg"
-  description = "Tráfico hacia las instancias Flask"
+  description = "Trafico hacia las instancias Flask"
   vpc_id      = aws_vpc.main.id
 
   ingress {
