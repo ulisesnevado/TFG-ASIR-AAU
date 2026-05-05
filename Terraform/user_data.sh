@@ -1,27 +1,15 @@
 #!/bin/bash
-set -eux
-
+set -eu
+ 
 export DEBIAN_FRONTEND=noninteractive
-
+ 
 apt-get update -y
 apt-get install -y python3 python3-pip git ansible
-
-# Variables que el playbook leerá del entorno
-cat <<EOF >> /etc/environment
-DB_HOST=${db_host}
-DB_USER=${db_user}
-DB_PASS=${db_password}
-DB_NAME=${db_name}
-EOF
-
-# Cargar el environment para esta misma sesión
-set -o allexport
-source /etc/environment
-set +o allexport
-
-# Ansible-pull desde el repo del TFG
+ 
+# Ansible-pull, pasando las credenciales de RDS como extra-vars
 ansible-pull \
   -U ${github_repo} \
   -d /home/ubuntu/TFG-ASIR-AAU \
   -i ansible/inventory \
+  --extra-vars "db_host=${db_host} db_user=${db_user} db_pass=${db_password} db_name=${db_name} github_repo=${github_repo}" \
   ansible/playbooks/webserver.yml
