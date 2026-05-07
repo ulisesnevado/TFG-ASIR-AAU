@@ -78,3 +78,9 @@
     name: cron
     enabled: yes
     state: started
+
+- name: Ensure SSM agent is enabled and running (administrative access via Session Manager)
+  systemd:
+    name: snap.amazon-ssm-agent.amazon-ssm-agent.service
+    enabled: yes
+    state: started
