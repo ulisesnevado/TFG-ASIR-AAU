@@ -1,0 +1,17 @@
+{
+    "accuracy": 0.9519038076152304,
+    "roc_auc": 0.9767176815369586,
+    "confusion_matrix": [
+        [
+            309,
+            24
+        ],
+        [
+            0,
+            166
+        ]
+    ],
+    "evaluation_type": "synthetic_validation",
+    "report_path": "/home/ubuntu/classification_report.txt",
+    "roc_curve_path": "/home/ubuntu/roc_curve.png"
+}

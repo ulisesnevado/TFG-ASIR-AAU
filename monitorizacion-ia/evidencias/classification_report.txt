@@ -1,0 +1,16 @@
+Classification Report - Isolation Forest
+Evaluation type: synthetic_validation
+Accuracy: 0.9519
+ROC AUC: 0.9767176815369586
+
+              precision    recall  f1-score   support
+
+      normal       1.00      0.93      0.96       333
+    anomalia       0.87      1.00      0.93       166
+
+    accuracy                           0.95       499
+   macro avg       0.94      0.96      0.95       499
+weighted avg       0.96      0.95      0.95       499
+
+Confusion matrix:
+[[309, 24], [0, 166]]
