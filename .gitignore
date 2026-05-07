@@ -9,3 +9,9 @@ tfg-key1.pem
 *.pem
 awscliv2
 awscliv2/*
+# Logs y backups de monitorizacion
+monitorizacion-ia/logs/
+*.log
+*.bak
+*.save
+__pycache__/

@@ -1,79 +1,103 @@
+#!/usr/bin/env python3
 """
-Lee métricas agregadas del Auto Scaling Group desde CloudWatch
-y las guarda en /home/ubuntu/cpu_data.csv para que ia_model.py las procese.
+Recolecta métricas agregadas del Auto Scaling Group desde CloudWatch
+y las guarda en monitorizacion-ia/datos/cpu_data.csv.
 """
-import boto3
-import pandas as pd
+
+import os
+from pathlib import Path
 from datetime import datetime, timedelta, timezone
 
-ASG_NAME = "foca-asg"
-CSV_PATH = "/home/ubuntu/cpu_data.csv"
+import boto3
+import pandas as pd
 
-cloudwatch = boto3.client('cloudwatch', region_name='us-east-1')
+PROJECT_ROOT = Path(__file__).resolve().parent
+
+ASG_NAME = os.getenv("ASG_NAME", "foca-asg")
+AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
+LOOKBACK_HOURS = int(os.getenv("LOOKBACK_HOURS", "90"))
+PERIOD_SECONDS = int(os.getenv("CW_PERIOD_SECONDS", "300"))
+
+CSV_PATH = Path(os.getenv("CSV_PATH", PROJECT_ROOT / "cpu_data.csv"))
+CSV_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+FEATURES = ["CPU", "NetworkIn", "NetworkOut"]
+
+cloudwatch = boto3.client("cloudwatch", region_name=AWS_REGION)
 
 end_time = datetime.now(timezone.utc)
-start_time = end_time - timedelta(hours=90)
+start_time = end_time - timedelta(hours=LOOKBACK_HOURS)
 
 
-def get_metric(metric_name):
+def get_metric(metric_name: str):
     response = cloudwatch.get_metric_statistics(
-        Namespace='AWS/EC2',
+        Namespace="AWS/EC2",
         MetricName=metric_name,
         Dimensions=[
-            {'Name': 'AutoScalingGroupName', 'Value': ASG_NAME}
+            {"Name": "AutoScalingGroupName", "Value": ASG_NAME}
         ],
         StartTime=start_time,
         EndTime=end_time,
-        Period=300,
-        Statistics=['Average']
+        Period=PERIOD_SECONDS,
+        Statistics=["Average"],
     )
-    return sorted(response['Datapoints'], key=lambda x: x['Timestamp'])
+
+    return sorted(response.get("Datapoints", []), key=lambda x: x["Timestamp"])
 
 
-cpu = get_metric('CPUUtilization')
-network_in = get_metric('NetworkIn')
-network_out = get_metric('NetworkOut')
+def main():
+    cpu = get_metric("CPUUtilization")
+    network_in = get_metric("NetworkIn")
+    network_out = get_metric("NetworkOut")
 
-if not cpu:
-    print("No hay datapoints aún para el ASG. Saliendo sin generar CSV.")
-    raise SystemExit(0)
+    if not cpu and not network_in and not network_out:
+        print(f"No hay datapoints para el ASG {ASG_NAME}. No se genera CSV.")
+        return
 
-# Construir un dict por timestamp para alinear las tres métricas
+    by_ts = {}
 
-by_ts = {}
-for dp in cpu:
-	by_ts.setdefault(dp['Timestamp'], {})['CPU'] = dp['Average']
-for dp in network_in:
-   	by_ts.setdefault(dp['Timestamp'], {})['NetworkIn'] = dp['Average']
-for dp in network_out:
- 	by_ts.setdefault(dp['Timestamp'], {})['NetworkOut'] = dp['Average']
+    for dp in cpu:
+        by_ts.setdefault(dp["Timestamp"], {})["CPU"] = dp["Average"]
 
-data = []
-for ts, vals in sorted(by_ts.items()):
-    	data.append({
-      		'Timestamp': ts,
-        	'CPU': vals.get('CPU', 0),
-        	'NetworkIn': vals.get('NetworkIn', 0),
-        	'NetworkOut': vals.get('NetworkOut', 0),
-    		})
+    for dp in network_in:
+        by_ts.setdefault(dp["Timestamp"], {})["NetworkIn"] = dp["Average"]
+
+    for dp in network_out:
+        by_ts.setdefault(dp["Timestamp"], {})["NetworkOut"] = dp["Average"]
+
+    rows = []
+    for ts, values in sorted(by_ts.items()):
+        rows.append({
+            "Timestamp": ts,
+            "CPU": values.get("CPU", 0.0),
+            "NetworkIn": values.get("NetworkIn", 0.0),
+            "NetworkOut": values.get("NetworkOut", 0.0),
+        })
+
+    new_df = pd.DataFrame(rows)
+    new_df["Timestamp"] = pd.to_datetime(new_df["Timestamp"], utc=True)
+
+    if CSV_PATH.exists():
+        old_df = pd.read_csv(CSV_PATH)
+        df = pd.concat([old_df, new_df], ignore_index=True)
+    else:
+        df = new_df
+
+    df["Timestamp"] = pd.to_datetime(df["Timestamp"], errors="coerce", utc=True)
+
+    for col in FEATURES:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    df = df.dropna(subset=["Timestamp"] + FEATURES)
+    df = df.drop_duplicates(subset=["Timestamp"])
+    df = df.sort_values("Timestamp")
+    df = df.tail(2000)
+
+    df.to_csv(CSV_PATH, index=False)
+
+    print(f"Datos guardados en {CSV_PATH}")
+    print(df.tail(10))
 
 
-
-df = pd.DataFrame(data)
-
-try:
-    old_df = pd.read_csv(CSV_PATH)
-    df = pd.concat([old_df, df], ignore_index=True)
-    df = df.drop_duplicates(subset=['Timestamp'])
-except FileNotFoundError:
-    pass
-
-df['Timestamp'] = pd.to_datetime(df['Timestamp'], utc=True)
-
-df = df.sort_values('Timestamp')
-df = df.tail(1000)
-
-df.to_csv(CSV_PATH, index=False)
-
-print(f"Datos guardados en {CSV_PATH}")
-print(df)
+if __name__ == "__main__":
+    main()
