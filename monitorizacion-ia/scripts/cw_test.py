@@ -12,7 +12,7 @@ CSV_PATH = "/home/ubuntu/cpu_data.csv"
 cloudwatch = boto3.client('cloudwatch', region_name='us-east-1')
 
 end_time = datetime.now(timezone.utc)
-start_time = end_time - timedelta(minutes=30)
+start_time = end_time - timedelta(hours=90)
 
 
 def get_metric(metric_name):
@@ -39,24 +39,40 @@ if not cpu:
     raise SystemExit(0)
 
 # Construir un dict por timestamp para alinear las tres métricas
+
 by_ts = {}
 for dp in cpu:
-    by_ts.setdefault(dp['Timestamp'], {})['CPU'] = dp['Average']
+	by_ts.setdefault(dp['Timestamp'], {})['CPU'] = dp['Average']
 for dp in network_in:
-    by_ts.setdefault(dp['Timestamp'], {})['NetworkIn'] = dp['Average']
+   	by_ts.setdefault(dp['Timestamp'], {})['NetworkIn'] = dp['Average']
 for dp in network_out:
-    by_ts.setdefault(dp['Timestamp'], {})['NetworkOut'] = dp['Average']
+ 	by_ts.setdefault(dp['Timestamp'], {})['NetworkOut'] = dp['Average']
 
 data = []
 for ts, vals in sorted(by_ts.items()):
-    data.append({
-        'Timestamp': ts,
-        'CPU': vals.get('CPU', 0),
-        'NetworkIn': vals.get('NetworkIn', 0),
-        'NetworkOut': vals.get('NetworkOut', 0),
-    })
+    	data.append({
+      		'Timestamp': ts,
+        	'CPU': vals.get('CPU', 0),
+        	'NetworkIn': vals.get('NetworkIn', 0),
+        	'NetworkOut': vals.get('NetworkOut', 0),
+    		})
+
+
 
 df = pd.DataFrame(data)
+
+try:
+    old_df = pd.read_csv(CSV_PATH)
+    df = pd.concat([old_df, df], ignore_index=True)
+    df = df.drop_duplicates(subset=['Timestamp'])
+except FileNotFoundError:
+    pass
+
+df['Timestamp'] = pd.to_datetime(df['Timestamp'], utc=True)
+
+df = df.sort_values('Timestamp')
+df = df.tail(1000)
+
 df.to_csv(CSV_PATH, index=False)
 
 print(f"Datos guardados en {CSV_PATH}")
