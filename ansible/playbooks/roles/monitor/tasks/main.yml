@@ -1,0 +1,80 @@
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install system dependencies
+  apt:
+    name:
+      - python3
+      - python3-pip
+      - python3-pandas
+      - python3-joblib
+      - python3-sklearn
+      - python3-boto3
+      - git
+      - cron
+    state: present
+
+- name: Ensure ubuntu owns the cloned repo
+  file:
+    path: /home/ubuntu/TFG-ASIR-AAU
+    state: directory
+    recurse: yes
+    owner: ubuntu
+    group: ubuntu
+
+- name: Copy monitoring Python scripts to /home/ubuntu/
+  copy:
+    src: "/home/ubuntu/TFG-ASIR-AAU/monitorizacion-ia/scripts/{{ item }}"
+    dest: "/home/ubuntu/{{ item }}"
+    owner: ubuntu
+    group: ubuntu
+    mode: '0644'
+    remote_src: yes
+  loop:
+    - cw_test.py
+    - ia_model.py
+    - send_to_cloudwatch.py
+
+- name: Copy monitoring shell script to /home/ubuntu/
+  copy:
+    src: /home/ubuntu/TFG-ASIR-AAU/monitorizacion-ia/scripts/ejecutar_monitorizacion.sh
+    dest: /home/ubuntu/ejecutar_monitorizacion.sh
+    owner: ubuntu
+    group: ubuntu
+    mode: '0755'
+    remote_src: yes
+
+- name: Copy Isolation Forest model files to /home/ubuntu/
+  copy:
+    src: "/home/ubuntu/TFG-ASIR-AAU/monitorizacion-ia/modelo/{{ item }}"
+    dest: "/home/ubuntu/{{ item }}"
+    owner: ubuntu
+    group: ubuntu
+    mode: '0644'
+    remote_src: yes
+  loop:
+    - isolation_forest_model.pkl
+    - scaler.pkl
+
+- name: Ensure cron log file exists
+  file:
+    path: /home/ubuntu/cron_monitorizacion.log
+    state: touch
+    owner: ubuntu
+    group: ubuntu
+    mode: '0644'
+
+- name: Schedule monitoring cron job for ubuntu user
+  cron:
+    name: "FOCA monitoring (every 5 minutes)"
+    user: ubuntu
+    minute: "*/5"
+    job: "/home/ubuntu/ejecutar_monitorizacion.sh"
+
+- name: Enable and start cron service
+  systemd:
+    name: cron
+    enabled: yes
+    state: started

@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import pymysql
 import os
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
@@ -65,10 +66,16 @@ def register():
     if request.method == "POST":
         user = request.form.get("username")
         pwd = request.form.get("password")
+        if not user or not pwd:
+            return render_template("register.html", error="Usuario y contraseña obligatorios")
+
+        # Hash con pbkdf2:sha256 + salt aleatorio (werkzeug por defecto)
+        pwd_hash = generate_password_hash(pwd)
+
         try:
             conn = get_connection()
             with conn.cursor() as c:
-                c.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (user, pwd))
+                c.execute("INSERT INTO users (username, password) VALUES (%s, %s)", (user, pwd_hash))
             conn.close()
             return redirect(url_for('login'))
         except pymysql.err.IntegrityError:
@@ -83,13 +90,18 @@ def login():
     if request.method == "POST":
         user = request.form.get("username")
         pwd = request.form.get("password")
-        conn = get_connection()
-        with conn.cursor() as c:
-            c.execute("SELECT * FROM users WHERE username=%s AND password=%s", (user, pwd))
-            result = c.fetchone()
-        conn.close()
+        try:
+            conn = get_connection()
+            with conn.cursor() as c:
+                # Solo seleccionamos el hash; la verificación se hace en Python
+                c.execute("SELECT password FROM users WHERE username=%s", (user,))
+                result = c.fetchone()
+            conn.close()
+        except Exception:
+            return render_template("login.html", error="Error de conexión")
 
-        if result:
+        # check_password_hash hace la comparación en tiempo constante
+        if result and check_password_hash(result[0], pwd):
             session['user'] = user
             return redirect(url_for('home'))
 
