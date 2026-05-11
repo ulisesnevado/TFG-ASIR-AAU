@@ -75,7 +75,7 @@ resource "aws_lb_target_group" "flask" {
     timeout             = 5
     healthy_threshold   = 2
     unhealthy_threshold = 3
-    matcher             = "200"
+    matcher             = "200,301"
   }
 
   tags = {
