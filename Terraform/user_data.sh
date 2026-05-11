@@ -6,6 +6,8 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get update -y
 apt-get install -y python3 python3-pip git ansible awscli jq
 
+sleep 10
+
 # Recuperar credenciales de RDS desde Secrets Manager
 SECRET=$(aws secretsmanager get-secret-value \
   --region ${aws_region} \
