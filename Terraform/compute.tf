@@ -34,12 +34,13 @@ resource "aws_launch_template" "flask" {
   }
 
   user_data = base64encode(templatefile("${path.module}/user_data.sh", {
-    db_host     = aws_db_instance.main.address
+    aws_region  = var.aws_region
+    secret_id   = aws_secretsmanager_secret.db.name
     db_name     = var.db_name
-    db_user     = var.db_username
-    db_password = var.db_password
     github_repo = var.github_repo
   }))
+
+  depends_on = [aws_secretsmanager_secret_version.db]
 
   tag_specifications {
     resource_type = "instance"

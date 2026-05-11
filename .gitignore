@@ -5,8 +5,8 @@ Terraform/terraform.tfstate.*
 Terraform/terraform.tfvars
 Terraform/*.pem
 *.tfstate*
-tfg-key1.pem
 *.pem
+*:Zone.Identifier
 awscliv2
 awscliv2/*
 # Logs y backups de monitorizacion

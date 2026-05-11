@@ -58,13 +58,6 @@ variable "db_username" {
   default     = "focaadmin"
 }
 
-variable "db_password" {
-  description = "Password del usuario master de RDS"
-  type        = string
-  default     = "foca.tfg.2026!!"
-  sensitive   = true
-}
-
 variable "acm_certificate_arn" {
   description = "ARN del certificado ACM en us-east-1 para fandefocas.es"
   type        = string
