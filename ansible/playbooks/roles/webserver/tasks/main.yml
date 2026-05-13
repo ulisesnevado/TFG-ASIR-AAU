@@ -79,7 +79,7 @@
       WorkingDirectory=/home/ubuntu/TFG-ASIR-AAU/app
       Environment="DB_HOST={{ db_host }}"
       Environment="DB_USER={{ db_user }}"
-      Environment="DB_PASS={{ db_pass }}"
+      Environment="DB_PASS={{ db_pass | replace('%', '%%') }}"
       Environment="DB_NAME={{ db_name }}"
       ExecStart=/usr/bin/python3 /home/ubuntu/TFG-ASIR-AAU/app/app.py
       Restart=always
