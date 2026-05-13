@@ -33,14 +33,7 @@ def load_metadata() -> dict:
 
 
 def calculate_severity(prediction: int, anomaly_score: float, thresholds: dict) -> int:
-    """
-    0 = normal
-    1 = anomalía leve
-    2 = anomalía media
-    3 = anomalía crítica
-
-    Solo se asigna severidad si el modelo ha marcado la fila como anomalía.
-    """
+   
     if prediction != -1:
         return 0
 
