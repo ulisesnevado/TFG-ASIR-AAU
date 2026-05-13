@@ -19,9 +19,21 @@ DB_USER=$(echo "$SECRET" | jq -r .username)
 DB_PASS=$(echo "$SECRET" | jq -r .password)
 DB_NAME=$(echo "$SECRET" | jq -r .dbname)
 
+# Escribir variables a fichero JSON temporal para evitar problemas
+# con caracteres especiales en la contraseña
+cat > /tmp/ansible_vars.json <<EOF
+{
+  "db_host": $(echo "$DB_HOST" | python3 -c "import sys,json; print(json.dumps(sys.stdin.read().strip()))"),
+  "db_user": $(echo "$DB_USER" | python3 -c "import sys,json; print(json.dumps(sys.stdin.read().strip()))"),
+  "db_pass": $(echo "$DB_PASS" | python3 -c "import sys,json; print(json.dumps(sys.stdin.read().strip()))"),
+  "db_name": $(echo "$DB_NAME" | python3 -c "import sys,json; print(json.dumps(sys.stdin.read().strip()))"),
+  "github_repo": $(echo "${github_repo}" | python3 -c "import sys,json; print(json.dumps(sys.stdin.read().strip()))")
+}
+EOF
+
 ansible-pull \
   -U ${github_repo} \
   -d /home/ubuntu/TFG-ASIR-AAU \
   -i ansible/inventory \
-  --extra-vars "db_host=$DB_HOST db_user=$DB_USER db_pass=$DB_PASS db_name=$DB_NAME github_repo=${github_repo}" \
+  --extra-vars "@/tmp/ansible_vars.json" \
   ansible/playbooks/webserver.yml
