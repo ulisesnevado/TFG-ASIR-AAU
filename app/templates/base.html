@@ -5,34 +5,95 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <title>TFG - Mundo Foca 🦭</title>
+    <title>TFG - Mundo Foca</title>
 </head>
 <body class="bg-slate-50 min-h-screen font-sans flex flex-col">
-    
+
     <!-- Barra de Navegación -->
-    <nav class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-50">
+    <nav class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-50" aria-label="Navegación principal">
         <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+
+            <!-- Logo -->
             <a href="{{ url_for('home') }}" class="text-2xl font-bold text-blue-600 flex items-center gap-2">
-                <span>🦭</span> Mundo Foca
+                <span aria-hidden="true">🦭</span> Mundo Foca
             </a>
+
+            <!-- Menú de Escritorio -->
             <div class="hidden md:flex items-center gap-8 font-medium text-slate-600">
                 <a href="{{ url_for('home') }}" class="hover:text-blue-600 transition">Inicio</a>
                 <a href="{{ url_for('habitos') }}" class="hover:text-blue-600 transition">Hábitos</a>
-                <div class="h-6 w-px bg-slate-200 mx-2"></div>
-                <a href="{{ url_for('login') }}" class="hover:text-blue-600 transition">Entrar</a>
-                <a href="{{ url_for('register') }}" class="bg-blue-600 text-white px-5 py-2 rounded-full hover:bg-blue-700 transition shadow-md">Registro</a>
+                <div class="h-6 w-px bg-slate-200 mx-2" aria-hidden="true"></div>
+
+                {% if session.get('user') %}
+                    <span class="text-slate-700 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 text-sm">
+                        Usuario: <strong class="text-blue-600 font-semibold">{{ session['user'] }}</strong>
+                    </span>
+                    <form action="{{ url_for('logout') }}" method="POST" class="inline">
+                        <button type="submit" class="border border-red-200 text-red-600 px-4 py-2 rounded-full hover:bg-red-50 hover:text-red-700 transition font-semibold text-sm shadow-sm cursor-pointer">
+                            Cerrar Sesión
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="hover:text-blue-600 transition">Entrar</a>
+                    <a href="{{ url_for('register') }}" class="bg-blue-600 text-white px-5 py-2 rounded-full hover:bg-blue-700 transition shadow-md">Registro</a>
+                {% endif %}
+            </div>
+
+            <!-- Botón Hamburguesa (Móvil) -->
+            <button id="menu-toggle"
+                    type="button"
+                    class="md:hidden text-slate-600 hover:text-blue-600 transition focus:outline-none focus:ring-2 focus:ring-blue-500 rounded p-1"
+                    aria-label="Abrir menú de navegación"
+                    aria-expanded="false"
+                    aria-controls="menu-movil">
+                <svg id="icon-open" class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+                <svg id="icon-close" class="w-7 h-7 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Menú Móvil (desplegable) -->
+        <div id="menu-movil" class="hidden md:hidden border-t border-slate-200 bg-white">
+            <div class="max-w-6xl mx-auto px-6 py-4 flex flex-col gap-3 font-medium text-slate-600">
+                <a href="{{ url_for('home') }}" class="hover:text-blue-600 transition py-2">Inicio</a>
+                <a href="{{ url_for('habitos') }}" class="hover:text-blue-600 transition py-2">Hábitos</a>
+
+                <div class="h-px w-full bg-slate-200 my-1" aria-hidden="true"></div>
+
+                {% if session.get('user') %}
+                    <span class="text-slate-700 bg-slate-100 px-3 py-2 rounded-lg border border-slate-200 text-sm">
+                        Usuario: <strong class="text-blue-600 font-semibold">{{ session['user'] }}</strong>
+                    </span>
+                    <form action="{{ url_for('logout') }}" method="POST">
+                        <button type="submit" class="w-full border border-red-200 text-red-600 px-4 py-2 rounded-full hover:bg-red-50 hover:text-red-700 transition font-semibold text-sm shadow-sm cursor-pointer">
+                            Cerrar Sesión
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="hover:text-blue-600 transition py-2">Entrar</a>
+                    <a href="{{ url_for('register') }}" class="bg-blue-600 text-white px-5 py-2 rounded-full hover:bg-blue-700 transition shadow-md text-center">Registro</a>
+                {% endif %}
             </div>
         </div>
     </nav>
 
-    <!-- Área de Mensajes -->
+    <!-- Área de Mensajes Flash -->
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-        <div class="max-w-4xl mx-auto mt-4 px-6">
+        <div class="max-w-4xl mx-auto mt-4 px-6 w-full">
           {% for category, message in messages %}
-            <div class="p-4 rounded-xl {% if category == 'success' %}bg-green-100 text-green-700 border-l-4 border-green-500{% else %}bg-red-100 text-red-700 border-l-4 border-red-500{% endif %} mb-4 shadow-sm">
-              {{ message }}
-            </div>
+            {% if category == 'success' %}
+              <div class="p-4 rounded-xl bg-green-100 text-green-700 border-l-4 border-green-500 mb-4 shadow-sm" role="alert">{{ message }}</div>
+            {% elif category == 'info' %}
+              <div class="p-4 rounded-xl bg-blue-100 text-blue-700 border-l-4 border-blue-500 mb-4 shadow-sm" role="status">{{ message }}</div>
+            {% elif category == 'warning' %}
+              <div class="p-4 rounded-xl bg-yellow-100 text-yellow-800 border-l-4 border-yellow-500 mb-4 shadow-sm" role="alert">{{ message }}</div>
+            {% else %}
+              <div class="p-4 rounded-xl bg-red-100 text-red-700 border-l-4 border-red-500 mb-4 shadow-sm" role="alert">{{ message }}</div>
+            {% endif %}
           {% endfor %}
         </div>
       {% endif %}
@@ -51,6 +112,27 @@
             <p class="text-xs mt-4 opacity-50">© 2026 Mundo Foca - Todos los derechos reservados</p>
         </div>
     </footer>
+
+    <!-- Script para alternar el menú móvil -->
+    <script>
+        (function () {
+            const toggle = document.getElementById('menu-toggle');
+            const menu = document.getElementById('menu-movil');
+            const iconOpen = document.getElementById('icon-open');
+            const iconClose = document.getElementById('icon-close');
+
+            if (!toggle || !menu) return;
+
+            toggle.addEventListener('click', function () {
+                const isOpen = !menu.classList.contains('hidden');
+                menu.classList.toggle('hidden');
+                iconOpen.classList.toggle('hidden');
+                iconClose.classList.toggle('hidden');
+                toggle.setAttribute('aria-expanded', String(!isOpen));
+                toggle.setAttribute('aria-label', !isOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación');
+            });
+        })();
+    </script>
 
 </body>
 </html>
